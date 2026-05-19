@@ -6,98 +6,141 @@ import mvc_exercise.model.dto.UpdateRequestDto;
 import mvc_exercise.model.dto.UserResponseDto;
 import mvc_exercise.utils.APIResponseTemplate;
 
-import java.util.List;
 import java.util.Scanner;
 
 public class UI {
 
-    private final UserController userController = new UserController();
-    private final Scanner scanner = new Scanner(System.in);
+    private final static UserController userController
+            = new UserController();
+
+    private final static Scanner scanner = new Scanner(System.in);
+
+    private static void thumbnail() {
+        System.out.println("""
+       =============== User Management System ================
+       1. Create User
+       2. Search User by UUID
+       3. Search User by name
+       4. Delete User by UUID
+       5. Update User by UUID
+       6. List all Users
+       0. Exit""");
+    }
+
+    private static int insertOption() {
+        System.out.print("[+] Insert your option: ");
+        return Integer.parseInt(scanner.nextLine());
+    }
 
     public static void getRendered() {
 
-        UI ui = new UI(); // internal object (needed because scanner + controller are not static)
-
         while (true) {
-            System.out.println("\n========== USER MENU ==========");
-            System.out.println("1. Create User");
-            System.out.println("2. Get All Users");
-            System.out.println("3. Get User By UUID");
-            System.out.println("4. Update User");
-            System.out.println("5. Delete User");
-            System.out.println("6. Search User By Name");
-            System.out.println("0. Exit");
-            System.out.print("Choose: ");
 
-            int option = ui.scanner.nextInt();
-            ui.scanner.nextLine();
+            thumbnail();
+            System.out.println("--");
 
-            switch (option) {
+            switch (insertOption()) {
 
                 case 1 -> {
-                    System.out.println("😍 Create user:");
-                    System.out.print("[+] Enter your name: ");
-                    String name = ui.scanner.nextLine();
 
-                    System.out.print("[+] Enter your email: ");
-                    String email = ui.scanner.nextLine();
+                    System.out.println("😍 Create user");
 
-                    System.out.print("[+] Enter your password: ");
-                    String password = ui.scanner.nextLine();
+                    System.out.print("[+] Insert name: ");
+                    String name = scanner.nextLine();
 
-                    CreateUserDto dto = new CreateUserDto(name, email, password);
+                    System.out.print("[+] Insert email: ");
+                    String email = scanner.nextLine();
 
-//                    System.out.println(ui.userController.createUser(dto));
-                    TableView.renderUserTable(dto);
+                    System.out.print("[+] Insert password: ");
+                    String password = scanner.nextLine();
+
+                    CreateUserDto createUserDto =
+                            new CreateUserDto(name, email, password);
+
+                    APIResponseTemplate<UserResponseDto> createdUser =
+                            userController.createUser(createUserDto);
+
+                    System.out.println(createdUser.message());
                 }
 
-                case 2 -> System.out.println(ui.userController.getAllUsers());
+                case 2 -> {
+
+                    System.out.println("Enter uuid to search user:");
+
+                    String uuid = scanner.nextLine();
+
+                    System.out.println(
+                            userController.getUserByUuid(uuid)
+                    );
+                }
 
                 case 3 -> {
-                    System.out.print("Enter UUID: ");
-                    String uuid = ui.scanner.nextLine();
-                    System.out.println(ui.userController.getUserByUuid(uuid));
+
+                    System.out.println("Enter user name to search user:");
+
+                    String name = scanner.nextLine();
+
+                    userController.searchUserByName(name)
+                            .data()
+                            .stream()
+                            .forEach(System.out::println);
                 }
 
                 case 4 -> {
-                    System.out.print("UUID: ");
-                    String uuid = ui.scanner.nextLine();
 
-                    System.out.print("New Name: ");
-                    String name = ui.scanner.nextLine();
+                    System.out.println("Enter uuid to delete user:");
 
-                    System.out.print("New Email: ");
-                    String email = ui.scanner.nextLine();
+                    String uuid = scanner.nextLine();
 
-                    System.out.print("New Password: ");
-                    String password = ui.scanner.nextLine();
-
-                    System.out.print("New Profile: ");
-                    String profile = ui.scanner.nextLine();
-
-                    UpdateRequestDto dto = new UpdateRequestDto(name, email, password, profile);
-
-                    System.out.println(ui.userController.updateUserByUuid(uuid, dto));
+                    System.out.println(
+                            userController.deleteUserByUuid(uuid)
+                    );
                 }
 
                 case 5 -> {
-                    System.out.print("Enter UUID: ");
-                    String uuid = ui.scanner.nextLine();
-                    System.out.println(ui.userController.deleteUserByUuid(uuid));
+
+                    System.out.println("Enter uuid to update user:");
+
+                    String uuid = scanner.nextLine();
+
+                    System.out.print("[+] Insert new name: ");
+                    String name = scanner.nextLine();
+
+                    System.out.print("[+] Insert new email: ");
+                    String email = scanner.nextLine();
+
+                    System.out.print("[+] Insert new password: ");
+                    String password = scanner.nextLine();
+
+                    System.out.print("[+] Insert new profile: ");
+                    String profile = scanner.nextLine();
+
+                    UpdateRequestDto dto =
+                            new UpdateRequestDto(name, email, password, profile);
+
+                    System.out.println(
+                            userController.updateUserByUuid(uuid, dto)
+                    );
                 }
 
                 case 6 -> {
-                    System.out.print("Enter name: ");
-                    String name = ui.scanner.nextLine();
-                    System.out.println(ui.userController.searchUserByName(name));
+
+                    System.out.println(userController.getAllUsers());
                 }
 
                 case 0 -> {
-                    System.out.println("Bye!");
-                    return;
+
+                    System.out.println("System closed...");
+
+                    try {
+                        Thread.sleep(100);
+                    } catch (Exception ignore) {
+                    }
+
+                    System.exit(0);
                 }
 
-                default -> System.out.println("Invalid option!");
+                default -> System.out.println("No Invalid option");
             }
         }
     }
