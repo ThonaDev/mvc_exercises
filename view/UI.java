@@ -1,10 +1,12 @@
 package mvc_exercise.view;
 
 import mvc_exercise.controller.UserController;
+import mvc_exercise.model.UserDao;
 import mvc_exercise.model.dto.CreateUserDto;
 import mvc_exercise.model.dto.UpdateRequestDto;
 import mvc_exercise.model.dto.UserResponseDto;
 import mvc_exercise.utils.APIResponseTemplate;
+import org.nocrala.tools.texttablefmt.Table;
 
 import java.util.Scanner;
 
@@ -14,6 +16,7 @@ public class UI {
             = new UserController();
 
     private final static Scanner scanner = new Scanner(System.in);
+    private final static UserDao userDao = new UserDao();
 
     private static void thumbnail() {
         System.out.println("""
@@ -65,18 +68,24 @@ public class UI {
 
                 case 2 -> {
 
-                    System.out.println("Enter uuid to search user:");
+                    System.out.print("Enter uuid to search user: ");
 
                     String uuid = scanner.nextLine();
+                    try {
 
-                    System.out.println(
-                            userController.getUserByUuid(uuid)
-                    );
+                        System.out.println(
+                                userController.getUserByUuid(uuid)
+                        );
+
+                    } catch (Exception e) {
+
+                        System.out.println("❌ User with uuid " + uuid + " not found!");
+                    }
                 }
 
                 case 3 -> {
 
-                    System.out.println("Enter user name to search user:");
+                    System.out.print("Enter user name to search user: ");
 
                     String name = scanner.nextLine();
 
@@ -88,7 +97,7 @@ public class UI {
 
                 case 4 -> {
 
-                    System.out.println("Enter uuid to delete user:");
+                    System.out.print("Enter uuid to delete user: ");
 
                     String uuid = scanner.nextLine();
 
@@ -103,29 +112,39 @@ public class UI {
 
                     String uuid = scanner.nextLine();
 
-                    System.out.print("[+] Insert new name: ");
-                    String name = scanner.nextLine();
+                    try {
 
-                    System.out.print("[+] Insert new email: ");
-                    String email = scanner.nextLine();
+                        // validate uuid first
+                        userController.getUserByUuid(uuid);
 
-                    System.out.print("[+] Insert new password: ");
-                    String password = scanner.nextLine();
+                        System.out.print("[+] Insert new name: ");
+                        String name = scanner.nextLine();
 
-                    System.out.print("[+] Insert new profile: ");
-                    String profile = scanner.nextLine();
+                        System.out.print("[+] Insert new email: ");
+                        String email = scanner.nextLine();
 
-                    UpdateRequestDto dto =
-                            new UpdateRequestDto(name, email, password, profile);
+                        System.out.print("[+] Insert new password: ");
+                        String password = scanner.nextLine();
 
-                    System.out.println(
-                            userController.updateUserByUuid(uuid, dto)
-                    );
+                        System.out.print("[+] Insert new profile: ");
+                        String profile = scanner.nextLine();
+
+                        UpdateRequestDto dto =
+                                new UpdateRequestDto(name, email, password, profile);
+
+                        System.out.println(
+                                userController.updateUserByUuid(uuid, dto)
+                        );
+
+                    } catch (Exception e) {
+
+                        System.out.println("❌ User with uuid " + uuid + " not found!");
+                    }
                 }
 
                 case 6 -> {
-
                     System.out.println(userController.getAllUsers());
+                    TableView.UserViewTable(userDao.findAll());
                 }
 
                 case 0 -> {
