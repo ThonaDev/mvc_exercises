@@ -72,11 +72,9 @@ public class UI {
 
                     String uuid = scanner.nextLine();
                     try {
-
                         System.out.println(
                                 userController.getUserByUuid(uuid)
                         );
-
                     } catch (Exception e) {
 
                         System.out.println("❌ User with uuid " + uuid + " not found!");
@@ -108,7 +106,7 @@ public class UI {
 
                 case 5 -> {
 
-                    System.out.println("Enter uuid to update user:");
+                    System.out.print("Enter uuid to update user:");
 
                     String uuid = scanner.nextLine();
 
