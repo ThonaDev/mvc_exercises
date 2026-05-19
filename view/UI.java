@@ -87,10 +87,14 @@ public class UI {
 
                     String name = scanner.nextLine();
 
-                    userController.searchUserByName(name)
-                            .data()
-                            .stream()
-                            .forEach(System.out::println);
+                    try{
+                        userController.searchUserByName(name)
+                                .data()
+                                .stream()
+                                .forEach(System.out::println);
+                    } catch (Exception e) {
+                        System.out.println("User with name " + name + "not found!");
+                    }
                 }
 
                 case 4 -> {

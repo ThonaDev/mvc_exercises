@@ -10,94 +10,113 @@ import mvc_exercise.model.dto.UserResponseDto;
 import java.util.ArrayList;
 import java.util.List;
 
-public class UserServiceImpl implements UserService{
+public class UserServiceImpl implements UserService {
+
     private final UserDao userDao = new UserDao();
     private final UserMapper userMapper = new UserMapper();
 
+    // 1. Create User
     @Override
     public UserResponseDto createUser(CreateUserDto createUserDto) {
-        // create user
-        // map from CreateUserDto to User - mapping
+
         User user = userMapper.fromCreateUserDtoToUser(createUserDto);
-        userDao.save(user); // save user to database
-        // map from User to UserResponseDto
-        UserResponseDto userResponseDto = userMapper.fromUserToResponseDto(user);
-        return userResponseDto;
-    }
 
-    @Override
-    public List<UserResponseDto> getAllUsers() {
-        // using map to convert object of User to UserResponseDto
+        userDao.save(user);
 
-
-         List<User> users = userDao.findAll();
-
-         List<UserResponseDto> userResponseDtos = new ArrayList<>();
-
-         for (User user: users){
-         UserResponseDto userResponseDto = userMapper.fromUserToResponseDto(user);
-
-
-          userResponseDtos.add(userResponseDto);
-         }
-         return userResponseDtos;
-
-
-
-//        return userDao.findAll().stream()
-//                .map(userMapper::fromUserToResponseDto).toList();
-    }
-
-    @Override
-    public UserResponseDto getUserByUuid(String uuid) {
-        User user = userDao.findAll()
-                .stream()
-                .filter(u->u.getUuid().equals(uuid))
-                .findFirst().get();
         return userMapper.fromUserToResponseDto(user);
     }
 
+    // 6. List all Users
+    @Override
+    public List<UserResponseDto> getAllUsers() {
+
+        List<User> users = userDao.findAll();
+
+        List<UserResponseDto> userResponseDtos = new ArrayList<>();
+
+        for (User user : users) {
+
+            UserResponseDto userResponseDto =
+                    userMapper.fromUserToResponseDto(user);
+
+            userResponseDtos.add(userResponseDto);
+        }
+
+        return userResponseDtos;
+
+        // stream api
+//        return userDao.findAll()
+//                .stream()
+//                .map(userMapper::fromUserToResponseDto)
+//                .toList();
+    }
+
+    // 2. Search User by UUID
+    @Override
+    public UserResponseDto getUserByUuid(String uuid) {
+
+        User user = userDao.findByUuid(uuid);
+
+        if (user == null) {
+            return null;
+        }
+
+        return userMapper.fromUserToResponseDto(user);
+    }
+
+    // 5. Update User by UUID
     @Override
     public UserResponseDto updateUserByUuid(String uuid, UpdateRequestDto dto) {
 
-        User user = userDao.findAll()
-                .stream()
-                .filter(u -> u.getUuid().equals(uuid))
-                .findFirst()
-                .get();
+        User user = userDao.findByUuid(uuid);
+
+        if (user == null) {
+            return null;
+        }
 
         user.setName(dto.name());
         user.setEmail(dto.email());
         user.setPassword(dto.password());
         user.setProfile(dto.profile());
 
-        return userMapper.fromUserToResponseDto(user);
+        User updatedUser = userDao.updateByUuid(user);
+
+        if (updatedUser == null) {
+            return null;
+        }
+
+        return userMapper.fromUserToResponseDto(updatedUser);
     }
 
+    // 4. Delete User by UUID
     @Override
     public int deleteUserByUuid(String uuid) {
-        User user = userDao.findAll()
-                .stream()
-                .filter(u->u.getUuid().equals(uuid))
-                .findFirst().get();
-        userDao.remove(user);
-        return 1;
+
+        return userDao.removeByUuid(uuid);
     }
 
+    // 3. Search User by Name
     @Override
     public List<UserResponseDto> searchUserByName(String name) {
-        List<User> users = userDao.findAll()
-                .stream()
-                .filter(user -> user.getName().toLowerCase().contains(name.toLowerCase()))
-                .toList();
+
+        List<User> users = userDao.findByName(name);
 
         List<UserResponseDto> userResponseDtos = new ArrayList<>();
 
         for (User user : users) {
-            UserResponseDto userResponseDto = userMapper.fromUserToResponseDto(user);
+
+            UserResponseDto userResponseDto =
+                    userMapper.fromUserToResponseDto(user);
+
             userResponseDtos.add(userResponseDto);
         }
 
         return userResponseDtos;
+
+        // stream api
+//        return userDao.findByName(name)
+//                .stream()
+//                .map(userMapper::fromUserToResponseDto)
+//                .toList();
     }
 }
